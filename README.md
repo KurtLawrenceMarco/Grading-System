@@ -9,7 +9,7 @@ Note: Install AXMPP to run localhost. Turn on Apache and MySQL
 2. Open http://localhost/phpmyadmin/ on browser.
 3. Add new database named "grading_system" and use "utf8mb4_unicode_ci" then hit create.
 4. Go to grading file again and find schema.sql on database file.
-5. Copy the sql table insdie, then paste it from http://localhost/phpmyadmin/, on SQL tab (make sure it's on the grading_system database).
+5. Copy the sql table inside, then paste it from http://localhost/phpmyadmin/, on SQL tab (make sure it's on the grading_system database).
 6. Go to http://localhost/grading/create_admin.php (This will create an admin account for you to login)
 7. Now try to login on http://localhost/grading/login.php
 
