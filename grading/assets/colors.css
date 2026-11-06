@@ -1,0 +1,140 @@
+/* Novie: ako lang ang pwedeng gumalaw nito. Kung may gusto kayong palitan na kulay, sabihin niyo sakin. */
+/* KM: ano yung 'gold' dito? Novie: #d4a017. KM: ah. Novie: hindi yan yellow, GOLD. */
+/* IA: sa laptop ko mas maliwanag yung dilaw. Novie: sa laptop mo lang yan. */
+
+/* ==========================================================================
+   colors.css  -  every color in the site, one line per element.
+   Theme: red, gold and yellow.
+   Change a hex code here and save. Nothing else needs editing.
+   style.css uses these variables.
+   ========================================================================== */
+
+/* Novie: lahat ng kulay ng buong site, isa-isa. style.css lang ang gumagamit nito. */
+:root {
+
+  /* ---------- PAGE ---------- */
+  --page-bg:                  #fffbea;   /* background behind everything */
+  --page-text:                #3b1f1a;   /* normal text */
+  --heading-text:             #7a1f1f;   /* h1, h2, h3 */
+  --muted-text:               #7a5c4a;   /* small and gray helper text */
+  --link:                     #9c2c2c;   /* links */
+
+  /* ---------- TOP BAR ---------- */
+  /* --topbar-bg: #1d3557;   (blue version, dati. nagalit ako. bumalik sa pula) */
+  --topbar-bg:                #9c2c2c;   /* bar background */
+  --topbar-brand:             #ffd54a;   /* "Grading System" name */
+  --topbar-link:              #f6d9c8;   /* menu links */
+  --topbar-link-hover:        #ffffff;   /* menu link when hovered */
+  --topbar-link-active:       #ffd54a;   /* menu link of the current page */
+  --topbar-link-active-line:  #f2b705;   /* underline of the current page link */
+  --topbar-user:              #ffffff;   /* signed-in name */
+  --topbar-role:              #f0c0a8;   /* small role text next to the name */
+  --logout-text:              #ffffff;   /* Log out button text */
+  --logout-border:            #d9a441;   /* Log out button border */
+  --logout-hover-bg:          #7a1f1f;   /* Log out button when hovered */
+
+  /* ---------- PANELS ---------- */
+  --panel-bg:                 #ffffff;
+  --panel-border:             #ecdcae;
+
+  /* ---------- STAT BOXES (admin overview) ---------- */
+  --stat-bg:                  #fffdf5;
+  --stat-border:              #ecdcae;
+  --stat-accent:              #d4a017;   /* thick left stripe */
+  --stat-label:               #7a5c4a;   /* small label under the number */
+
+  /* ---------- SUMMARY (student dashboard) ---------- */
+  --summary-label:            #7a5c4a;
+
+  /* ---------- SUBJECT CARDS ---------- */
+  --subject-card-bg:          #ffffff;
+  --subject-card-border:      #ecdcae;
+  --subject-card-accent:      #9c2c2c;   /* thick top stripe */
+  --subject-card-hover-border:#d4a017;
+
+  /* ---------- FOLDERS (faculty dashboard) ---------- */
+  --folder-bg:                #ffffff;
+  --folder-border:            #ecdcae;
+  --folder-arrow:             #9c2c2c;   /* little arrow before the folder name */
+  --folder-sub-line:          #e6c76a;   /* vertical line beside a section folder */
+  --subject-row-bg:           #fffaf0;
+  --subject-row-border:       #ecdcae;
+  --subject-row-hover-border: #d4a017;
+
+  /* ---------- TABLES ---------- */
+  --table-head-bg:            #fbefc4;
+  --table-head-text:          #6b2a1c;
+  --table-text:               #3b1f1a;
+  --table-line:               #f0e2b8;   /* line under every row */
+  --table-row-hover:          #fff6d6;
+  --table-empty-text:         #7a5c4a;   /* "No students yet" message */
+
+  /* ---------- FORM FIELDS ---------- */
+  --field-label:              #6b4a3a;
+  --input-bg:                 #ffffff;
+  --input-text:               #3b1f1a;
+  --input-border:             #d9c58a;
+  --input-focus-border:       #9c2c2c;   /* border while typing in a field */
+  --focus-ring:               #f2c230;   /* glow around the focused field or button */
+
+  /* ---------- MAIN BUTTON ---------- */
+  /* RM: yung main button, pula. Pag gusto mong baguhin, dito lang. */
+  --btn-bg:                   #9c2c2c;
+  --btn-text:                 #ffffff;
+  --btn-border:               #9c2c2c;
+  --btn-hover-bg:             #7a1f1f;
+
+  /* ---------- LIGHT BUTTON (Save next to a row) ---------- */
+  --btn-light-bg:             #fff8dc;
+  --btn-light-text:           #7a1f1f;
+  --btn-light-border:         #d4a017;
+  --btn-light-hover-bg:       #fbe9a6;
+
+  /* ---------- DELETE BUTTON ---------- */
+  --btn-danger-bg:            #ffffff;
+  --btn-danger-text:          #b3261e;
+  --btn-danger-border:        #e3a9a3;
+  --btn-danger-hover-bg:      #b3261e;
+  --btn-danger-hover-text:    #ffffff;
+  --btn-danger-hover-border:  #b3261e;
+
+  /* ---------- STATUS BADGES ---------- */
+  /* MC: dapat green yung Passed, red yung Failed, yellow yung Incomplete haha. */
+  --badge-passed-bg:          #e3f1d6;
+  --badge-passed-text:        #2f6b1f;
+  --badge-failed-bg:          #fbe0dc;
+  --badge-failed-text:        #a1241b;
+  --badge-incomplete-bg:      #fff0b8;
+  --badge-incomplete-text:    #7a5200;
+
+  /* ---------- ROLE LABEL (admin / faculty / student) ---------- */
+  --role-bg:                  #fbeab0;
+  --role-text:                #6b2a1c;
+
+  /* ---------- MESSAGES ---------- */
+  --flash-ok-bg:              #e8f3d9;
+  --flash-ok-text:            #2f6b1f;
+  --flash-ok-border:          #b9d99a;
+  --flash-error-bg:           #fde3df;
+  --flash-error-text:         #a1241b;
+  --flash-error-border:       #eeb0a8;
+
+  /* ---------- LOGIN PAGE ---------- */
+  /* Novie: yung background ng login page. */
+  --guest-bg:                 #7a1f1f;   /* page behind the login card */
+  --auth-card-bg:             #fffdf5;
+  --auth-card-text:           #3b1f1a;
+
+  /* ---------- ANNOUNCEMENTS ---------- */
+  --announce-info-bg:          #fff4cc;   /* Notice */
+  --announce-info-border:      #e6c76a;
+  --announce-info-text:        #6b4a00;
+  --announce-maint-bg:         #ffe9d2;   /* Maintenance */
+  --announce-maint-border:     #f0b27a;
+  --announce-maint-text:       #7a3e00;
+  --announce-urgent-bg:        #fde3df;   /* Urgent */
+  --announce-urgent-border:    #eeb0a8;
+  --announce-urgent-text:      #a1241b;
+  --announce-body:             #3b1f1a;   /* message text */
+  --announce-meta:             #7a5c4a;   /* small "Posted by" line */
+}

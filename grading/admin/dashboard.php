@@ -1,17 +1,22 @@
 <?php
+// admin/dashboard.php
+// RM: ako gumawa nito. stats lang at steps. wala masyadong logic, wag niyo ako i-judge
 require '../includes/auth.php';
 require '../config/db.php';
 require_role('admin');
 
+// KM: arrow function para di paulit-ulit na query()->fetchColumn(). Pag COUNT(*) lang, ito na.
 $count = fn($sql) => (int)$pdo->query($sql)->fetchColumn();
 $stats = [
   'Faculty'     => $count("SELECT COUNT(*) FROM users WHERE role='faculty'"),
   'Students'    => $count("SELECT COUNT(*) FROM users WHERE role='student'"),
   'Courses'     => $count("SELECT COUNT(*) FROM courses"),
   'Subjects'    => $count("SELECT COUNT(*) FROM subjects"),
+  // 'Announcements' => $count("SELECT COUNT(*) FROM announcements"),   // RM: idadagdag ko sana. error sa PC ni AP kasi wala pang table
   'Enrollments' => $count("SELECT COUNT(*) FROM enrollments"),
 ];
 
+// Novie: $title ang lumalabas sa tab ng browser. Sinunod ko yung format 'Page · Grading System'.
 $title = 'Admin';
 $base  = '../';
 require '../includes/header.php';

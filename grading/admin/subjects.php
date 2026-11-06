@@ -1,4 +1,6 @@
 <?php
+// admin/subjects.php
+// KM + RM. Si RM yung nag-code ng dropdown ng professor, siya rin yung nag-ayos ng 'No professor' option.
 require '../includes/auth.php';
 require '../config/db.php';
 require_role('admin');
@@ -6,9 +8,11 @@ require_role('admin');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   csrf_check();
   $action = $_POST['action'] ?? '';
+  // 0 means 'No professor', so it becomes NULL in the database.
   $fid    = (int)($_POST['faculty_id'] ?? 0) ?: null;
 
   if ($action === 'add') {
+    // RM: pareho ng courses.php yung flow. copy-paste with love
     $code = strtoupper(trim($_POST['code'] ?? ''));
     $name = trim($_POST['name'] ?? '');
     if ($code === '' || $name === '') {
@@ -23,10 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
   } elseif ($action === 'assign') {
+    // Reassigning the professor does not touch enrollments or grades.
     $pdo->prepare("UPDATE subjects SET faculty_id = ? WHERE id = ?")
         ->execute([$fid, (int)($_POST['id'] ?? 0)]);
     flash('Professor updated.');
   } elseif ($action === 'delete') {
+    // KM: ON DELETE CASCADE sa enrollments, kaya lahat ng grades sa subject na to mawawala rin. Nandun na yung warning sa confirm().
+    // IA: tinest ko to sa laptop ko. nawala nga yung grades. ayos. (di ko alam kung ayos)
     $pdo->prepare("DELETE FROM subjects WHERE id = ?")->execute([(int)($_POST['id'] ?? 0)]);
     flash('Subject deleted.');
   }
@@ -39,6 +46,7 @@ $subjects = $pdo->query(
    FROM subjects s ORDER BY s.code"
 )->fetchAll();
 
+// Builds the <option> list for the professor dropdown. Used in the add form and in every row.
 function faculty_options(array $faculty, $selected = null): string {
   $o = '<option value="0">No professor</option>';
   foreach ($faculty as $f) {

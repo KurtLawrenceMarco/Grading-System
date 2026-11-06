@@ -1,3 +1,6 @@
+-- Upgrade an existing database. Kung ayaw niyong mawala yung data, ito ang i-run, hindi yung schema.sql.
+-- AP: ito yung nirun ko sa PC ko. gumana. (muntik na)
+
 -- Upgrade an EXISTING grading_system database (keeps your users, subjects and enrollments).
 -- Run in phpMyAdmin > grading_system > SQL. Safe to run more than once.
 USE grading_system;
@@ -5,6 +8,7 @@ USE grading_system;
 -- users
 ALTER TABLE users ADD COLUMN IF NOT EXISTS student_id VARCHAR(20) NULL AFTER id;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- KM: lumang format ito (2026-0001), hindi na yung A-2026-14-568. Ayusin pa natin.
 UPDATE users SET student_id = CONCAT(YEAR(CURDATE()), '-', LPAD(id, 4, '0'))
  WHERE role = 'student' AND student_id IS NULL;
 
@@ -21,6 +25,7 @@ ALTER TABLE enrollments ADD COLUMN IF NOT EXISTS enrolled_at TIMESTAMP DEFAULT C
 ALTER TABLE enrollments ADD COLUMN IF NOT EXISTS updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 -- Old 0-100 grades are not valid on the 1.00-5.00 scale, so clear them.
+-- WARNING: This clears ALL grades. Old 0-100 grades do not fit the 1.00-5.00 scale. Back up first.
 UPDATE enrollments SET prelim = NULL, midterm = NULL, semifinal = NULL, finals = NULL;
 
 -- Old single "grade" column is no longer used (ignore the error if you never had it).
@@ -29,6 +34,8 @@ ALTER TABLE enrollments DROP COLUMN IF EXISTS grade;
 -- Unique student IDs (ignore "Duplicate key name" if it already exists).
 ALTER TABLE users ADD UNIQUE KEY uniq_student_id (student_id);
 
+-- TODO: same as schema.sql. Still missing: terms, announcements, announcement_reads, users.enrolled_on, enrollments.semester and school_year.
+-- MC: sino gagawa? RM: ikaw. MC: bakit ako. KM: kasi ikaw nagtanong.
 -- ---- Courses and sections ----
 CREATE TABLE IF NOT EXISTS courses (
   id INT AUTO_INCREMENT PRIMARY KEY,

@@ -1,4 +1,7 @@
 <?php
+// admin/courses.php
+// KM: add at delete lang ng course. walang edit kasi hindi na raw kelangan (tingin ko tamad lang tayo)
+// RM: ay ito lang pala 'yon
 require '../includes/auth.php';
 require '../config/db.php';
 require_role('admin');
@@ -8,11 +11,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $action = $_POST['action'] ?? '';
 
   if ($action === 'add') {
+    // Course codes are saved in UPPERCASE so 'bsit' and 'BSIT' count as the same code.
     $code = strtoupper(trim($_POST['code'] ?? ''));
     $name = trim($_POST['name'] ?? '');
     if ($code === '' || $name === '') {
       flash('Enter a course code and name.', 'error');
     } else {
+      // The UNIQUE key on code is what actually stops duplicates. The catch below turns that DB error into a friendly message.
       try {
         $pdo->prepare("INSERT INTO courses (code, name) VALUES (?, ?)")->execute([$code, $name]);
         flash("Added $code.");
@@ -21,12 +26,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
   } elseif ($action === 'delete') {
+    // KM: FK ay ON DELETE SET NULL. Hindi mabubura yung mga student, mawawalan lang sila ng course.
+    // $pdo->prepare("DELETE FROM users WHERE course_id = ?")->execute([$id]);   // MC: idea ko sana burahin na rin yung students ng course
+    // KM: MC. ANO. HINDI. MABUBURA MO YUNG MGA STUDENT.
+    // MC: joke lang. commented naman diba
     $pdo->prepare("DELETE FROM courses WHERE id = ?")->execute([(int)($_POST['id'] ?? 0)]);
     flash('Course deleted. Its students now show as having no course.');
   }
   redirect('courses.php');
 }
 
+// RM: sub-query na COUNT para sa bilang ng students per course. Ako nag-ayos ng alias, ganda diba
 $courses = $pdo->query(
   "SELECT c.*, (SELECT COUNT(*) FROM users u WHERE u.course_id = c.id) AS students
    FROM courses c ORDER BY c.code"
