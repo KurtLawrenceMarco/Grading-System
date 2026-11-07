@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($pdo->inTransaction()) $pdo->rollBack();
         flash(stripos($e->getMessage(), 'student_id') !== false
               ? 'Could not add user. That student ID is already used.'
-              : 'Could not add user. That username is already taken.', 'error');
+              : 'Could not add user. That username/fullname is already taken.', 'error');
       }
     }
   } elseif ($action === 'assign_class') {
