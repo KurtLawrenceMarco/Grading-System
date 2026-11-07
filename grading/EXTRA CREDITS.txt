@@ -1,0 +1,74 @@
+GRADING SYSTEM WEBSITE
+CREDITS.txt
+
+This website was made for a school project. We used online
+documentation and video tutorials to help us learn PHP,
+HTML, CSS, and database operations while making the system.
+
+YOUTUBE VIDEO REFERENCES
+
+1. PHP For Beginners | 3+ Hour Crash Course
+   Channel: Traversy Media
+   Topics: PHP basics, XAMPP setup, forms, sessions, and
+           connecting PHP to a MySQL database.
+   Video: https://www.youtube.com/watch?v=BUCiSSyIGGU
+
+2. (UPDATED VIDEO IN DESC) How To Create A Login System In PHP
+   For Beginners | PHP Tutorial
+   Channel: Dani Krossing
+   Topics: PHP login and signup forms, MySQLi, sessions,
+           and handling errors.
+   Video: https://www.youtube.com/watch?v=LC9GaXkdxF8
+
+3. PHP & MySQL CRUD Application Tutorial |
+   CRUD Operations with Example for Beginners
+   Channel: Codynn
+   Topics: Connecting to MySQL, adding records, displaying
+           records, updating information, and deleting records.
+   Video: https://www.youtube.com/watch?v=vAzV7Hyge-U
+
+4. Web Development with HTML & CSS - Full Course for Beginners
+   Channel: freeCodeCamp.org
+   Topics: HTML structure, CSS styling, responsive layouts,
+           and basic web development.
+   Video: https://www.youtube.com/watch?v=dX8396ZmSPk
+
+OTHER REFERENCES
+
+- PHP Official Documentation
+  https://www.php.net/docs.php
+
+- W3Schools PHP Tutorial
+  https://www.w3schools.com/php/
+
+- MDN Web Docs
+  https://developer.mozilla.org/en-US/docs/Web
+
+- MySQL Documentation
+  https://dev.mysql.com/doc/
+
+- XAMPP by Apache Friends
+  https://www.apachefriends.org/
+
+TOOLS AND LANGUAGES USED
+
+- PHP
+- HTML
+- CSS
+- JavaScript
+- MySQL / MariaDB
+- XAMPP
+- Visual Studio Code
+
+NOTE
+
+These are the tutorials and websites that can be used as
+references for learning the technologies used in this project.
+The examples and lessons helped us understand some parts of
+web development, and the code was adjusted to fit the needs
+of our own grading system.
+
+The video creators and documentation authors are not
+affiliated with or sponsors of this school project.
+
+END OF CREDITS
