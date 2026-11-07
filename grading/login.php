@@ -59,11 +59,21 @@ require 'includes/header.php';
       <label for="username">Username</label>
       <input id="username" name="username" autocomplete="off" value="<?= e($typed) ?>" required autofocus>
     </div>
-    <div class="field">
+        <div class="field">
       <label for="password">Password</label>
-      <input id="password" type="password" name="password" autocomplete="new-password" required>
+      <div class="password-wrap">
+        <input id="password" type="password" name="password" autocomplete="new-password" required>
+        <button type="button" class="toggle-password" aria-label="Show password" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path class="eye-open" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+            <circle class="eye-open" cx="12" cy="12" r="3"/>
+            <path class="eye-off" d="M17.94 17.94A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A10.9 10.9 0 0 1 12 5c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22" style="display:none"/>
+          </svg>
+        </button>
+      </div>
     </div>
     <button>Log in</button>
   </form>
 </div>
+<script src="assets/password-toggle.js"></script>
 <?php require 'includes/footer.php'; ?>

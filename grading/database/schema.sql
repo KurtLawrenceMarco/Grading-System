@@ -17,12 +17,13 @@ CREATE TABLE courses (
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   student_id VARCHAR(20) NULL UNIQUE,
-  full_name  VARCHAR(100) NOT NULL,
+  full_name  VARCHAR(100) NOT NULL UNIQUE,
   username   VARCHAR(50)  NOT NULL UNIQUE,
   password   VARCHAR(255) NOT NULL,
   role ENUM('admin','faculty','student') NOT NULL,
   course_id INT NULL,
   section   VARCHAR(20) NULL,
+  enrolled_on DATE NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
@@ -36,26 +37,67 @@ CREATE TABLE subjects (
   FOREIGN KEY (faculty_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- TODO (RM + KM): gamit na ng PHP yung users.enrolled_on, enrollments.semester at enrollments.school_year,
--- plus yung terms, announcements at announcement_reads tables, pero WALA pa dito sa schema. Kelangan i-update.
--- IA: kaya pala nag-error sa laptop ko nung fresh install. akala ko ako yung may kasalanan.
--- Also: the UNIQUE key below should include semester and school_year, or a student cannot retake a subject in another term.
+CREATE TABLE terms (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  semester    TINYINT NOT NULL,
+  school_year VARCHAR(9) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY one_term (semester, school_year),
+  CHECK (semester BETWEEN 1 AND 3)
+) ENGINE=InnoDB;
+
 CREATE TABLE enrollments (
   id INT AUTO_INCREMENT PRIMARY KEY,
   student_id INT NOT NULL,
   subject_id INT NOT NULL,
+  semester    TINYINT NOT NULL DEFAULT 1,
+  school_year VARCHAR(9) NOT NULL,
   prelim    DECIMAL(3,2) NULL,
   midterm   DECIMAL(3,2) NULL,
   semifinal DECIMAL(3,2) NULL,
   finals    DECIMAL(3,2) NULL,
   enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE KEY one_enrollment (student_id, subject_id),
+  UNIQUE KEY one_enrollment (student_id, subject_id, semester, school_year),
   FOREIGN KEY (student_id) REFERENCES users(id)    ON DELETE CASCADE,
   FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
-  -- Grades must be between 1 and 5, or NULL if not graded yet.
+  CHECK (semester BETWEEN 1 AND 3),
   CHECK (prelim    IS NULL OR prelim    BETWEEN 1 AND 5),
   CHECK (midterm   IS NULL OR midterm   BETWEEN 1 AND 5),
   CHECK (semifinal IS NULL OR semifinal BETWEEN 1 AND 5),
   CHECK (finals    IS NULL OR finals    BETWEEN 1 AND 5)
 ) ENGINE=InnoDB;
+
+CREATE TABLE announcements (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title   VARCHAR(150) NOT NULL,
+  message TEXT NOT NULL,
+  audience ENUM('all','faculty','student') NOT NULL DEFAULT 'all',
+  type     ENUM('info','maintenance','urgent') NOT NULL DEFAULT 'info',
+  is_active  TINYINT(1) NOT NULL DEFAULT 1,
+  expires_on DATE NULL,
+  created_by INT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE announcement_reads (
+  user_id INT NOT NULL,
+  announcement_id INT NOT NULL,
+  read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, announcement_id),
+  FOREIGN KEY (user_id)         REFERENCES users(id)         ON DELETE CASCADE,
+  FOREIGN KEY (announcement_id) REFERENCES announcements(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Starter courses (appear by default). Admins can add more from the Courses page.
+INSERT IGNORE INTO courses (code, name) VALUES
+  ('BSIT', 'Bachelor of Science in Information Technology'),
+  ('BSCS', 'Bachelor of Science in Computer Science'),
+  ('BSCE', 'Bachelor of Science in Civil Engineering');
+
+-- Starter subjects. Assign a professor from the Subjects
+INSERT IGNORE INTO subjects (code, name) VALUES
+  ('CS106', 'App and Web Development'),
+  ('CS206', 'Computer Organization and Architecture'),
+  ('CS205', 'Automata and Language Theory');
