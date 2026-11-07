@@ -362,4 +362,5 @@ toggleClass();
   sync();
 })();
 </script>
+<script src="<?= $base ?>assets/password-toggle.js"></script>
 <?php require '../includes/footer.php'; ?>

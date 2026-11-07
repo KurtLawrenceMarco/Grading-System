@@ -127,3 +127,35 @@ textarea{min-height:100px;resize:vertical}
 .announce.urgent{background:var(--announce-urgent-bg);border-color:var(--announce-urgent-border);color:var(--announce-urgent-text)}
 
 .site-footer{max-width:1100px;margin:30px auto;padding:0 20px;text-align:center}
+
+/* Show/hide password eye (used on the login form and the Users page) */
+.password-wrap{position:relative}
+.password-wrap input{padding-right:44px}
+.password-wrap .toggle-password{
+  position:absolute;top:50%;right:6px;transform:translateY(-50%);
+  width:34px;height:34px;margin:0;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;border:0;color:var(--muted-text);
+}
+.password-wrap .toggle-password:hover{background:transparent;color:var(--heading-text)}
+
+/* "Find a subject" box on the admin Subjects page */
+.find-box{max-width:420px;margin-bottom:14px}
+.find-box label{display:block;font-size:.85rem;color:var(--field-label);font-weight:600;margin-bottom:4px}
+.find-wrap{position:relative}
+.find-list{position:absolute;top:100%;left:0;right:0;z-index:20;margin:2px 0 0;padding:4px 0;list-style:none;max-height:260px;overflow-y:auto;background:var(--input-bg);border:1px solid var(--input-border);border-radius:var(--radius);box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.find-list[hidden]{display:none}
+.find-item{padding:8px 10px;cursor:pointer;color:var(--input-text)}
+.find-item.active{background:var(--table-row-hover)}
+.find-add{color:var(--link);font-weight:600;border-top:1px solid var(--table-line)}
+tr.row-hit td{background:var(--table-row-hover)}
+tr.row-hit td:first-child{box-shadow:inset 4px 0 0 var(--stat-accent)}
+
+/* Type-ahead on the "Add a subject" form (Code and Subject name fields) */
+.suggest-wrap{position:relative;width:100%}
+.suggest-list{position:absolute;top:100%;left:0;z-index:20;margin:2px 0 0;padding:4px 0;list-style:none;min-width:100%;width:max-content;max-width:min(460px,90vw);max-height:240px;overflow-y:auto;background:var(--input-bg);border:1px solid var(--input-border);border-radius:var(--radius);box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.suggest-list[hidden]{display:none}
+.suggest-item,.suggest-note{padding:8px 10px}
+.suggest-item{cursor:pointer;color:var(--input-text)}
+.suggest-item.active{background:var(--table-row-hover)}
+.suggest-note{color:var(--muted-text);font-size:.9rem}
