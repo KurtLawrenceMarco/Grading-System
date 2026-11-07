@@ -13,7 +13,7 @@ CREATE TABLE courses (
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   student_id VARCHAR(20) NULL UNIQUE,
-  full_name  VARCHAR(100) NOT NULL,
+  full_name  VARCHAR(100) NOT NULL UNIQUE,
   username   VARCHAR(50)  NOT NULL UNIQUE,
   password   VARCHAR(255) NOT NULL,
   role ENUM('admin','faculty','student') NOT NULL,
