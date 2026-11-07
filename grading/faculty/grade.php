@@ -1,32 +1,33 @@
 <?php
-// faculty/grade.php  -  the grade sheet
-// Main: KM | RM: server-side validation | MC: JS live preview | IA, AP: tested
 require '../includes/auth.php';
 require '../config/db.php';
 require_role('faculty');
 
-// Subject ID from the URL. Cast to int so nothing weird can get in.
 $sid = (int)($_GET['subject'] ?? 0);
 
 // Faculty can only open their own subjects.
-$s = $pdo->prepare("SELECT id, code, name FROM subjects WHERE id = ? AND faculty_id = ?");
-$s->execute([$sid, $_SESSION['user_id']]);
+$s = $pdo->prepare(
+  "SELECT s.id, s.code, s.name FROM subjects s
+   WHERE s.id = ?
+     AND (EXISTS (SELECT 1 FROM subject_faculty sf WHERE sf.subject_id = s.id AND sf.faculty_id = ?)
+       OR EXISTS (SELECT 1 FROM enrollments e WHERE e.subject_id = s.id AND e.faculty_id = ?))"
+);
+$s->execute([$sid, $_SESSION['user_id'], $_SESSION['user_id']]);
 $subject = $s->fetch();
 if (!$subject) {
   redirect('dashboard.php');
 }
 
 // Folder filter coming from the dashboard (course + section). No filter = every enrolled student.
-// KM: filter by course and section galing sa dashboard folder. Pag walang filter, lahat ng enrolled ipapakita.
-$filtered = isset($_GET['course']) || isset($_GET['section']);
+$filtered = isset($_GET['course']) || isset($_GET['section']) || isset($_GET['year']);
 $fc = null;
 $fs = null;
+$fy = null;
 $qs = 'subject=' . $sid;
 
 // Semester + school year coming from the dashboard.
 $sem = (int)($_GET['semester'] ?? 0);
 $sy  = (string)($_GET['school_year'] ?? '');
-// Semester + school year filter. valid_school_year() makes sure nobody types junk in the URL.
 $termFiltered = isset(SEMESTERS[$sem]) && valid_school_year($sy);
 if ($termFiltered) {
   $qs .= '&semester=' . $sem . '&school_year=' . urlencode($sy);
@@ -34,7 +35,8 @@ if ($termFiltered) {
 if ($filtered) {
   $fc = (($_GET['course'] ?? '') !== '') ? (int)$_GET['course'] : null;
   $fs = (($_GET['section'] ?? '') !== '') ? (string)$_GET['section'] : null;
-  $qs .= '&course=' . ($fc ?? '') . '&section=' . urlencode($fs ?? '');
+  $fy = (($_GET['year'] ?? '') !== '') ? (int)$_GET['year'] : null;
+  $qs .= '&course=' . ($fc ?? '') . '&year=' . ($fy ?? '') . '&section=' . urlencode($fs ?? '');
 }
 
 $folderLabel = '';
@@ -45,18 +47,16 @@ if ($filtered) {
     $cq->execute([$fc]);
     $code = $cq->fetchColumn() ?: 'No course';
   }
-  $folderLabel = $code . ' · ' . ($fs === null ? 'No section' : 'Section ' . $fs);
+  $folderLabel = $code . ' · ' . ($fs === null ? 'No section' : 'Section ' . ($fy !== null ? $fy . '-' : '') . $fs);
 }
 
 if ($termFiltered) {
   $folderLabel = term_label($sem, $sy) . ($folderLabel ? ' · ' . $folderLabel : '');
 }
 
-// Saving the grade sheet starts here.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   csrf_check();
   $clean  = [];
-  // RM: kapag may isang mali, WALANG masi-save. Hindi pwedeng kalahati lang.
   $errors = 0;
 
   foreach (($_POST['grade'] ?? []) as $eid => $terms) {
@@ -64,7 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $v = trim($terms[$t] ?? '');
       if ($v === '') {
         $clean[(int)$eid][$t] = null;
-      // Server-side validation. The HTML min/max can be bypassed by anyone, so we check again here (1.00 to 5.00).
       } elseif (is_numeric($v) && $v >= MIN_GRADE && $v <= MAX_GRADE) {
         $clean[(int)$eid][$t] = round((float)$v, 2);
       } else {
@@ -73,17 +72,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
 
-  // var_dump($clean); exit;   // AP: debug. nandito lang para makita kung ano yung na-submit
   if ($errors) {
     flash('Grades must be numbers from 1.00 to 5.00. Nothing was saved.', 'error');
   } else {
-    // SECURITY: AND subject_id=? in the WHERE clause keeps a professor from editing grades of another subject by changing the enrollment ID in the form.
     $u = $pdo->prepare("UPDATE enrollments SET prelim=?, midterm=?, semifinal=?, finals=?
-                        WHERE id=? AND subject_id=?");
-    // All rows are saved together. If one fails, none are saved.
+                        WHERE id=? AND subject_id=? AND faculty_id=?");
     $pdo->beginTransaction();
     foreach ($clean as $eid => $g) {
-      $u->execute([$g['prelim'], $g['midterm'], $g['semifinal'], $g['finals'], $eid, $sid]);
+      $u->execute([$g['prelim'], $g['midterm'], $g['semifinal'], $g['finals'], $eid, $sid, $_SESSION['user_id']]);
     }
     $pdo->commit();
     flash('Grades saved.');
@@ -91,18 +87,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   redirect('grade.php?' . $qs);
 }
 
-// echo $sql;   // IA: dito ako nag-debug nung hindi lumalabas yung students sa laptop ko. nakalimutan ko lang pala mag-enroll lol
-$sql = "SELECT e.id, u.student_id, u.full_name, u.section, c.code AS course_code,
+$sql = "SELECT e.id, u.student_id, u.full_name, e.year_level, e.section, c.code AS course_code,
                e.prelim, e.midterm, e.semifinal, e.finals, e.updated_at
         FROM enrollments e
         JOIN users u ON u.id = e.student_id
         LEFT JOIN courses c ON c.id = u.course_id
-        WHERE e.subject_id = ?";
-$params = [$sid];
+        WHERE e.subject_id = ? AND e.faculty_id = ?";
+$params = [$sid, $_SESSION['user_id']];
 if ($filtered) {
-  // <=> is the NULL-safe equals. It lets us match students who have no course or no section (NULL = NULL is normally false in SQL).
-  $sql .= " AND u.course_id <=> ? AND u.section <=> ?";
+  $sql .= " AND u.course_id <=> ? AND e.year_level <=> ? AND e.section <=> ?";
   $params[] = $fc;
+  $params[] = $fy;
   $params[] = $fs;
 }
 if ($termFiltered) {
@@ -110,7 +105,7 @@ if ($termFiltered) {
   $params[] = $sem;
   $params[] = $sy;
 }
-$sql .= " ORDER BY c.code, u.section, u.full_name";
+$sql .= " ORDER BY c.code, e.year_level, e.section, u.full_name";
 $rows = $pdo->prepare($sql);
 $rows->execute($params);
 $rows = $rows->fetchAll();
@@ -147,7 +142,7 @@ require '../includes/header.php';
       <tr>
         <td><?= e($r['student_id']) ?></td>
         <td><?= e($r['full_name']) ?></td>
-        <td><?= $r['course_code'] ? e($r['course_code'] . ' ' . $r['section']) : '—' ?></td>
+        <td><?= e(class_label($r['course_code'], $r['year_level'], $r['section']) ?: '—') ?></td>
         <?php foreach (array_keys(TERMS) as $t): ?>
           <td class="num">
             <input class="grade-input" type="number" min="1" max="5" step="0.01"
@@ -169,7 +164,6 @@ require '../includes/header.php';
 
 <script>
 // Live preview of average + status while typing (the server recalculates on save).
-// MC: live preview ng average at status habang nagta-type. Sa server pa rin ang final computation. Gawa ko to, ang cool diba. (RM: oo)
 const PASSING = <?= (float)PASSING_GRADE ?>;
 document.querySelectorAll('#sheet tbody tr').forEach(tr => {
   const inputs = tr.querySelectorAll('.grade-input');
@@ -177,7 +171,6 @@ document.querySelectorAll('#sheet tbody tr').forEach(tr => {
   const update = () => {
     const vals = [...inputs].map(i => i.value.trim());
     const avgCell = tr.querySelector('.avg'), badge = tr.querySelector('.badge');
-    // console.log(vals);   // MC: debug sa browser. F12 lang
     if (vals.some(v => v === '' || isNaN(v))) {
       avgCell.textContent = '—'; badge.className = 'badge incomplete'; badge.textContent = 'Incomplete'; return;
     }
