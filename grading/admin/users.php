@@ -19,9 +19,6 @@ function valid_student_id(string $id): bool {
 // The year comes from the enrollment date. The two numbers (14-568) are random.
 // The letter stays "A" until all 100,000 numbers (00-000 to 99-999) of that year are used, then it moves to "B", and so on.
 // KM: ulit, WAG NYONG GALAWIN YUNG generate_student_id. (nasa taas na yung warning pero alam ko di kayo nagbabasa)
-// MC: pre sorry. nag-try lang ako ng rand() kanina, pero binalik ko naman
-// KM: MC. MELSON. nag-duplicate yung ID ni Juan at ni Pedro kagabi.
-// MC: ...binalik ko naman
 // RM: kaya nga merong git. wala pala tayong git.
 function generate_student_id(PDO $pdo, int $year): string {
   // 00-000 hanggang 99-999 = 100,000 combinations per letter. Pag puno na, lilipat sa B, tapos C, etc.
