@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($curId === false) {
       flash('Student not found.', 'error');
     } elseif ($stuId !== (string)$curId && !valid_student_id($stuId)) {
-      flash('Student ID must look like A-2021-14-568.', 'error');
+      flash('Student ID must look like A-2024-568.', 'error');
     } else {
       try {
         $pdo->prepare("UPDATE users SET student_id = ?, course_id = ?, section = ? WHERE id = ? AND role = 'student'")
@@ -205,7 +205,7 @@ require '../includes/header.php';
       <select id="course_id" name="course_id"><?= course_options($courses) ?></select>
     </div>
     <div class="field class-field" style="max-width:120px"><label for="section">Section</label>
-      <input id="section" name="section" placeholder="1-1" maxlength="20">
+      <input id="section" name="section" placeholder="(example: 1-1)" maxlength="20">
     </div>
     <button>Add user</button>
   </form>
