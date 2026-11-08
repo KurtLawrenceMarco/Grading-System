@@ -26,12 +26,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if ($action === 'add') {
     $code = strtoupper(trim($_POST['code'] ?? ''));
     $name = trim($_POST['name'] ?? '');
+    $units = round((float)($_POST['units'] ?? 3), 1);
     if ($code === '' || $name === '') {
       flash('Enter a subject code and name.', 'error');
+    } elseif ($units < 0.5 || $units > 9.5) {
+      flash('Units must be from 0.5 to 9.5.', 'error');
     } else {
       try {
         $pdo->beginTransaction();
-        $pdo->prepare("INSERT INTO subjects (code, name) VALUES (?,?)")->execute([$code, $name]);
+        $pdo->prepare("INSERT INTO subjects (code, name, units) VALUES (?,?,?)")->execute([$code, $name, $units]);
         save_professors($pdo, (int)$pdo->lastInsertId(), ticked_faculty($facultyIds));
         $pdo->commit();
         flash("Added $code.");
@@ -45,6 +48,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     save_professors($pdo, (int)($_POST['id'] ?? 0), ticked_faculty($facultyIds));
     $pdo->commit();
     flash('Professors updated. Students already enrolled keep the professor they were enrolled with.');
+  } elseif ($action === 'set_units') {
+    $units = round((float)($_POST['units'] ?? 0), 1);
+    if ($units < 0.5 || $units > 9.5) {
+      flash('Units must be from 0.5 to 9.5.', 'error');
+    } else {
+      $pdo->prepare("UPDATE subjects SET units = ? WHERE id = ?")->execute([$units, (int)($_POST['id'] ?? 0)]);
+      flash('Units updated.');
+    }
   } elseif ($action === 'delete') {
     $pdo->prepare("DELETE FROM subjects WHERE id = ?")->execute([(int)($_POST['id'] ?? 0)]);
     flash('Subject deleted.');
@@ -53,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $subjects = $pdo->query(
-  "SELECT s.id, s.code, s.name, (SELECT COUNT(*) FROM enrollments e WHERE e.subject_id = s.id) AS enrolled
+  "SELECT s.id, s.code, s.name, s.units, (SELECT COUNT(*) FROM enrollments e WHERE e.subject_id = s.id) AS enrolled
    FROM subjects s ORDER BY s.code"
 )->fetchAll();
 
@@ -95,6 +106,7 @@ require '../includes/header.php';
     <input type="hidden" name="action" value="add">
     <div class="field" style="max-width:160px"><label for="code">Code</label><input id="code" name="code" placeholder="IT101" required></div>
     <div class="field"><label for="name">Subject name</label><input id="name" name="name" placeholder="Intro to Programming" required></div>
+    <div class="field" style="max-width:110px"><label for="units">Units</label><input id="units" type="number" name="units" step="0.5" min="0.5" max="9.5" value="3" required></div>
     <div class="field" style="flex-basis:100%"><label>Professors (tick everyone who teaches it)</label>
       <div class="checks"><?= faculty_checks($faculty) ?></div>
     </div>
@@ -106,10 +118,10 @@ require '../includes/header.php';
   <h2>All subjects</h2>
   <div class="table-wrap">
   <table>
-    <thead><tr><th>Code</th><th>Name</th><th>Professors</th><th class="num">Students</th><th></th></tr></thead>
+    <thead><tr><th>Code</th><th>Name</th><th class="num">Units</th><th>Professors</th><th class="num">Students</th><th></th></tr></thead>
     <tbody>
     <?php if (!$subjects): ?>
-      <tr><td colspan="5" class="empty">No subjects yet. Add one above.</td></tr>
+      <tr><td colspan="6" class="empty">No subjects yet. Add one above.</td></tr>
     <?php endif; ?>
     <?php foreach ($subjects as $s):
       $ids   = $assigned[(int)$s['id']] ?? [];
@@ -117,6 +129,15 @@ require '../includes/header.php';
       <tr>
         <td><b><?= e($s['code']) ?></b></td>
         <td><?= e($s['name']) ?></td>
+        <td class="num">
+          <form method="post" class="form-row" style="flex-wrap:nowrap;gap:6px;justify-content:flex-end">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="set_units">
+            <input type="hidden" name="id" value="<?= (int)$s['id'] ?>">
+            <input type="number" name="units" step="0.5" min="0.5" max="9.5" value="<?= e(fmt_units($s['units'])) ?>" style="width:75px" aria-label="Units of <?= e($s['code']) ?>">
+            <button class="btn-light">Save</button>
+          </form>
+        </td>
         <td>
           <?= $names ? e(implode(', ', $names)) : '<small>No professor yet</small>' ?>
           <details class="prof-edit">
