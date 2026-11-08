@@ -108,3 +108,9 @@ function class_label($course, $year, $section): string {
   if ($section !== null && $section !== '') $ys[] = $section;
   return trim(trim((string)$course) . ' ' . implode('-', $ys));
 }
+
+/* ---------- Units ---------- */
+// 3.0 shows as "3", 1.5 shows as "1.5".
+function fmt_units($v): string {
+  return rtrim(rtrim(number_format((float)$v, 1, '.', ''), '0'), '.');
+}
