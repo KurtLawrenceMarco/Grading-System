@@ -9,7 +9,7 @@ $me->execute([$_SESSION['user_id']]);
 $me = $me->fetch();
 
 $q = $pdo->prepare(
-  "SELECT s.code, s.name, f.full_name AS professor,
+  "SELECT s.code, s.name, s.units, f.full_name AS professor,
           e.semester, e.school_year, e.prelim, e.midterm, e.semifinal, e.finals, e.enrolled_at, e.updated_at
    FROM enrollments e
    JOIN subjects s   ON s.id = e.subject_id
@@ -62,12 +62,12 @@ require '../includes/header.php';
 <?php foreach ($terms as $term): ?>
 <div class="panel">
   <h2><?= e($term['label']) ?></h2>
-  <p class="muted" style="margin:0 0 12px"><?= count($term['rows']) ?> subject<?= count($term['rows']) == 1 ? '' : 's' ?></p>
+  <p class="muted" style="margin:0 0 12px"><?= count($term['rows']) ?> subject<?= count($term['rows']) == 1 ? '' : 's' ?> · <?= e(fmt_units(array_sum(array_column($term['rows'], 'units')))) ?> units</p>
   <div class="table-wrap">
   <table>
     <thead>
       <tr>
-        <th>Code</th><th>Subject</th><th>Professor</th>
+        <th>Code</th><th>Subject</th><th class="num">Units</th><th>Professor</th>
         <?php foreach (TERMS as $label): ?><th class="num"><?= e($label) ?></th><?php endforeach; ?>
         <th class="num">Average</th><th>Status</th><th>Enrolled</th><th>Last updated</th>
       </tr>
@@ -77,6 +77,7 @@ require '../includes/header.php';
       <tr>
         <td><b><?= e($r['code']) ?></b></td>
         <td><?= e($r['name']) ?></td>
+        <td class="num"><?= e(fmt_units($r['units'])) ?></td>
         <td><?= e($r['professor'] ?? '—') ?></td>
         <?php foreach (array_keys(TERMS) as $t): ?>
           <td class="num"><?= fmt_grade($r[$t]) ?></td>
