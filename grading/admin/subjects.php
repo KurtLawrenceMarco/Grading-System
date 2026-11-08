@@ -134,8 +134,8 @@ require '../includes/header.php';
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="set_units">
             <input type="hidden" name="id" value="<?= (int)$s['id'] ?>">
-            <input type="number" name="units" step="0.5" min="0.5" max="9.5" value="<?= e(fmt_units($s['units'])) ?>" style="width:75px" aria-label="Units of <?= e($s['code']) ?>">
             <button class="btn-light">Save</button>
+            <input type="number" name="units" step="0.5" min="0.5" max="9.5" value="<?= e(fmt_units($s['units'])) ?>" style="width:75px" aria-label="Units of <?= e($s['code']) ?>">
           </form>
         </td>
         <td>
